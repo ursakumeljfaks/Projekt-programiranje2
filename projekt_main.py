@@ -16,7 +16,17 @@ def spremeni_v_sekunde(cas):
     minute, sekunde = cas.split(':')
     total = float(minute)*60 + float(sekunde)
     return total
-    
+
+slovar_medalj = {}
+def medalje_za_drzave(drzave, mesta):
+    """{drzava : [zlata, srebrna, bronasta]} slovar vseh drzav in njihovih dosezkov"""
+    for i in range(3):
+        drzava = drzave[i]
+        if drzava not in slovar_medalj:
+            slovar_medalj[drzava] = [0,0,0]
+        slovar_medalj[drzava][mesta[i]-1] += 1
+    return slovar_medalj
+
 
 spletna_combined = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_combined').text
 vse_comb = re.findall(r'<td align="left">.*<a href="/wiki/.+" title=".+">(.+)</a>.*</td>', spletna_combined)
@@ -30,24 +40,23 @@ cas_comb_total = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna_combined)
 #škatla z brki
 data1 = [spremeni_v_sekunde(cas) for cas in cas_comb_total]
 
-#sklovar_medalj = {drzava: stevilo medalj za vse discipline}  {drzava : [z, s, b]}
-slovar_medalj = {}
+#sklovar_medalj = {drzava: stevilo medalj za vse discipline}  
+slovar_medalj2 = {}
 
 
 for i in range(3):
     drzava = drzava_comb[i]
-    if drzava not in slovar_medalj:
-        slovar_medalj[drzava] = [0,0,0]
-    slovar_medalj[drzava][mesta_comb[i]-1] += 1
+    if drzava not in slovar_medalj2:
+        slovar_medalj2[drzava] = [0,0,0]
+    slovar_medalj2[drzava][mesta_comb[i]-1] += 1
 
-#print(slovar_medalj)
-
+#print(slovar_medalj2)
+medalje_za_drzave(drzava_comb, mesta_comb)
 
 #DOWNHILL WOMEN
 spletna_downhill = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_downhill').text
 vse_dw = re.findall(r'<td align="left">.*<a href="/wiki/.+" title=".+">(.+)</a>.*</td>', spletna_downhill) # druga svica manjka
 drzava_dw = re.findall(r'<td align="left">.*<a href="/wiki/.+" title=".+ at the 2014 Winter Olympics">(.+)</a>.*</td>', spletna_downhill) #ena switzerland manjka 
-
 
 mesto2 = list(range(3,43)) #ko popravim za svicarko lahko do len(imena_dw)+1 
 mesta_dw = [1, 1] + mesto2
@@ -58,6 +67,7 @@ cas_dw = [cas_dw1[0]] + cas_dw1 + dnf_dw
 
 #škatla z brki
 data2 = [spremeni_v_sekunde(cas) for cas in cas_dw1]
+medalje_za_drzave(drzava_dw, mesta_dw)
 
 #GIANT SLALOM WOMEN
 spletna_giant_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_giant_slalom').text
@@ -74,7 +84,8 @@ cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1
 
 #škatla z brki
 data3 = [spremeni_v_sekunde(cas) for cas in cas_gs_total]
-
+#dosežene medalje
+medalje_za_drzave(drzava_gs, mesta_gs)
 
 #SLALOM WOMEN
 spletna_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_slalom').text
@@ -90,7 +101,7 @@ cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
 
 #škatla z brki
 data4 = [spremeni_v_sekunde(cas) for cas in cas_sl_total]
-
+medalje_za_drzave(drzava_sl, mesta_sl)
 
 #SUPER-G WOMEN
 spletna_superg = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_super-G').text
@@ -113,5 +124,11 @@ plt.semilogy()
 plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
 plt.show()
 
+print(medalje_za_drzave(drzava_sg, mesta_sg)) #zato ker manjka svica pri downhill nam da se italijo
+
+
+
+#dosežene medalje pravilno
+#{Germany: [1, 1, 1], Austria: [1, 3, 2], United States: [1, 0, 1], Slovenia: [2, 0, 0], Switzerland: [1, 1, 0]}
 
 
