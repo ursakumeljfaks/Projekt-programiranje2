@@ -125,7 +125,7 @@ plt.boxplot(data)
 #uporabi logaritmsko skalo da ni stisnjeno
 plt.semilogy()
 plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
-plt.savefig("Box plot")
+#plt.savefig("Box plot")
 plt.show()
 
 
