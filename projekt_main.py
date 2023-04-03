@@ -119,11 +119,13 @@ vsi_casi_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:] #+dnf_sg
 #škatla z brki
 data5 = [spremeni_v_sekunde(cas) for cas in vsi_casi_sg]
 data = [data1, data2, data3, data4, data5]
-fig = plt.figure(figsize =(7, 7))
-plt1 = plt.boxplot(data)
+plt.figure(figsize =(7, 7))
+plt.figure(num="Box plot")
+plt.boxplot(data)
 #uporabi logaritmsko skalo da ni stisnjeno
 plt.semilogy()
 plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
+plt.savefig("Box plot")
 plt.show()
 
 
@@ -138,14 +140,17 @@ for tabela in slovar_vseh_medalj.values():
     bronasta.append(tabela[2])
 
 
-x = np.arange(len(drzava))
-plt.bar(x-0.2, zlata, width=0.2,color="orange",label="Zlate" )
-plt.bar(x+0.2*2, srebrna, width=0.2, color="grey", label="Srebrna")
-plt.bar(x+0.2*3, bronasta, width=0.2, color="brown", label="Bronasta")
-plt.xticks(x, drzava)
-plt.legend()
+fig, ax = plt.subplots()
+
+ax.barh(drzava, zlata, label='Zlata', color="gold")
+ax.barh(drzava, srebrna, left=zlata, label='Srebrna', color="grey")
+ax.barh(drzava, bronasta, left=srebrna, label='Bronasta', color="brown")
+ax.legend()
 
 plt.show()
+
+
+
 
 #dosežene medalje pravilno
 #{Germany: [1, 1, 1], Austria: [1, 3, 2], United States: [1, 0, 1], Slovenia: [2, 0, 0], Switzerland: [1, 1, 0]}
