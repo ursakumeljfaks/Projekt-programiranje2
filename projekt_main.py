@@ -56,6 +56,7 @@ vse_dw = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)<
 imena_dw = vse_dw[::2]
 drzava_dw = vse_dw[1::2]
 
+
 mesto2 = list(range(3,len(imena_dw)+1)) #range(3,43)
 mesta_dw = [1, 1] + mesto2
 
@@ -63,6 +64,7 @@ mesta_dw = [1, 1] + mesto2
 cas_dw1 = re.findall(r'<td>(\d\:\d\d\.\d\d)', spletna_downhill)
 dnf_dw= re.findall(r'<td><span data-sort-value="9\:99\.99.+!">(.+)</span></td>', spletna_downhill)
 cas_dw = [cas_dw1[0]] + cas_dw1 + dnf_dw
+
 
 #škatla z brki
 data2 = [spremeni_v_sekunde(cas) for cas in cas_dw1]
