@@ -3,7 +3,6 @@ import requests
 import re
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 
 def spremeni_v_sekunde(cas):
@@ -14,17 +13,17 @@ def spremeni_v_sekunde(cas):
 def spremeni_v_minute(cas):
     minute = cas // 60
     sekunde = cas - minute*60
-    return str(minute) + ":" + str(sekunde)
+    return '{:.0f}:{:.2f}'.format(minute, sekunde)
 
 slovar_medalj = {}
-def medalje_za_drzave(drzave, mesta):
+def medalje_za_drzave(slovar, drzave, mesta):
     """{drzava : [zlata, srebrna, bronasta]} slovar vseh drzav in njihovih dosezkov"""
     for i in range(3):
         drzava = drzave[i]
-        if drzava not in slovar_medalj:
-            slovar_medalj[drzava] = [0,0,0]
-        slovar_medalj[drzava][mesta[i]-1] += 1
-    return slovar_medalj
+        if drzava not in slovar:
+            slovar[drzava] = [0,0,0]
+        slovar[drzava][mesta[i]-1] += 1
+    return slovar
 
 spletna_combined = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_combined').text
 vse_comb = re.findall(r'<td align="left">.*<a href="/wiki/.+" title=".+">(.+)</a>.*</td>', spletna_combined)
@@ -48,7 +47,7 @@ for i in range(3):
     slovar_medalj2[drzava][mesta_comb[i]-1] += 1
 
 #print(slovar_medalj2)
-sl_comb = medalje_za_drzave(drzava_comb, mesta_comb)
+slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_comb, mesta_comb)
 
 #DOWNHILL WOMEN
 spletna_downhill = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_downhill').text
@@ -68,7 +67,7 @@ cas_dw = [cas_dw1[0]] + cas_dw1 + dnf_dw
 
 #škatla z brki
 data2 = [spremeni_v_sekunde(cas) for cas in cas_dw1]
-sl_dw = medalje_za_drzave(drzava_dw, mesta_dw)
+slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_dw, mesta_dw)
 
 #GIANT SLALOM WOMEN
 spletna_giant_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_giant_slalom').text
@@ -86,7 +85,7 @@ cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1
 #škatla z brki
 data3 = [spremeni_v_sekunde(cas) for cas in cas_gs_total]
 #dosežene medalje
-sl_gs = medalje_za_drzave(drzava_gs, mesta_gs)
+slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_gs, mesta_gs)
 
 #SLALOM WOMEN
 spletna_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_slalom').text
@@ -102,7 +101,7 @@ cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
 
 #škatla z brki
 data4 = [spremeni_v_sekunde(cas) for cas in cas_sl_total]
-sl_sl = medalje_za_drzave(drzava_sl, mesta_sl)
+slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sl, mesta_sl)
 
 #SUPER-G WOMEN
 spletna_superg = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_super-G').text
@@ -125,26 +124,39 @@ m = min(data1 + data2 + data3 + data4 + data5)
 razmak = int((M - m)/8)
 ves_data = list(range(int(m), int(M), razmak))
 casi = [spremeni_v_minute(i) for i in ves_data]
-
-
 fig = plt.figure(num="Box plot", figsize=(7, 7))
 
 plt.boxplot(data)
 #uporabi logaritmsko skalo da ni stisnjeno
-#plt.semilogy()
+plt.semilogy()
+plt.minorticks_off()
 plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
 plt.yticks(ves_data, casi)
 #fig.savefig("Box plot")
 plt.show()
 
 
+###drugi nacin, men zgleda prvi bols ker so okrogle cifre na grafu
+#vsi_casi = data1+data2+data3+data4+data5
+#razmak = (max(vsi_casi) - min(vsi_casi)) / 8
+#napisi_sek = [min(vsi_casi)+i*razmak for i in range(9)]
+#napisi_min = [spremeni_v_minute(i) for i in napisi_sek[::len(napisi_sek)//5]]
+#fig = plt.figure(num="Box plot", figsize=(7, 7))
+#plt.boxplot(data)
+#plt.semilogy()
+#plt.minorticks_off()
+#plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
+#plt.yticks(napisi_sek, napisi_min)
+#plt.show()
+
+
 #bar chart za medalje
 #print(medalje_za_drzave(drzava_sg, mesta_sg)) #zato ker manjka svica pri downhill nam da se italijo
-sl_sg = medalje_za_drzave(drzava_sg, mesta_sg)
-#print(sl_sg)
-drzava = list(sl_sg.keys())
+slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sg, mesta_sg)
+
+drzava = list(slovar_medalj.keys())
 zlata, srebrna, bronasta = [], [], []
-for tabela in sl_sg.values():
+for tabela in slovar_medalj.values():
     zlata.append(tabela[0])
     srebrna.append(tabela[1])
     bronasta.append(tabela[2])
@@ -164,5 +176,4 @@ plt.show()
 
 #dosežene medalje pravilno
 #{Germany: [1, 1, 1], Austria: [1, 3, 2], United States: [1, 0, 1], Slovenia: [2, 0, 0], Switzerland: [1, 1, 0]}
-
 
