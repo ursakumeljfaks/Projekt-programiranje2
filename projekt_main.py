@@ -77,6 +77,7 @@ dnf_comb = ["dnf" for _ in range(17)]
 mesta_comb = list(range(1, len(imena_comb)+1))
 
 cas_comb_total = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna_combined)
+zapis_comb = [("combined",i,j,k,l) for i,j,k,l in zip(mesta_comb, imena_comb, drzava_comb, cas_comb_total+dnf_comb)]
 
 #škatla z brki
 data1 = [spremeni_v_sekunde(cas) for cas in cas_comb_total]
@@ -96,10 +97,7 @@ mesta_dw = [1, 1] + mesto2
 cas_dw = re.findall(r'<td.*>(\d\:\d\d\.\d\d)', spletna_downhill) 
 dnf_dw = ["dnf" for _ in range(7)]
 
-cas_dw1 = re.findall(r'<td>(\d\:\d\d\.\d\d)', spletna_downhill)
-dnf_dw= re.findall(r'<td><span data-sort-value="9\:99\.99.+!">(.+)</span></td>', spletna_downhill)
-cas_dw = [cas_dw1[0]] + cas_dw1 + dnf_dw
-
+zapis_dw = [("downhill",i,j,k,l) for i,j,k,l in zip(mesta_dw, imena_dw, drzava_dw, cas_dw+dnf_dw)]
 
 #škatla z brki
 data2 = [spremeni_v_sekunde(cas) for cas in cas_dw]
@@ -115,9 +113,11 @@ mesta_gs = list(range(1,15)) + [14] + list(range(16,90))
 
 cas_gs_total1 = re.findall(r'<td.*>([2|3]\:*\d\d\.\d\d)</td>', spletna_giant_slalom)
 cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1:]
+dnf_gs = ["dnf" for _ in range(22)]
+zapis_gs = [("giant-slalom",i,j,k,l) for i,j,k,l in zip(mesta_gs, imena_gs, drzava_gs, cas_gs_total+dnf_gs)]
 
 #škatla z brki
-data3 = [spremeni_v_sekunde(cas) for cas in cas_gs]
+data3 = [spremeni_v_sekunde(cas) for cas in cas_gs_total]
 #dosežene medalje
 slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_gs, mesta_gs)
 
@@ -132,9 +132,13 @@ vsi_casi_sl = re.findall(r'<td>(\d*\:*\d\d\.\d\d)</td>', spletna_slalom)
 #cas_sl_run1 = vsi_casi_sl[::3] narobe
 #cas_sl_run2 = vsi_casi_sl[1::3] narobe
 cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
+dnf_sl = ["dnf" for _ in range(38)]
+
+zapis_sl = [("slalom",i,j,k,l) for i,j,k,l in zip(mesta_sl, imena_sl, drzava_sl, cas_sl_total+dnf_sl)]
+
 
 #škatla z brki
-data4 = [spremeni_v_sekunde(cas) for cas in cas_sl]
+data4 = [spremeni_v_sekunde(cas) for cas in cas_sl_total]
 slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sl, mesta_sl)
 
 
@@ -150,8 +154,12 @@ vsi_casi = re.findall(r'<td.*>(\d*\:*\d\d\.\d\d)</td>', spletna_superg)
 dnf_sg= re.findall(r'<td>(\w\w\w)</td>', spletna_superg)
 vsi_casi_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:] #+dnf_sg
 
+dnf_sg = ["dnf" for _ in range(19)]
+
+zapis_sg = [("super-g",i,j,k,l) for i,j,k,l in zip(mesta_sg, imena_sg, drzava_sg, vsi_casi_sg+dnf_sg)]
+
 #škatla z brki
-data5 = [spremeni_v_sekunde(cas) for cas in cas_sg]
+data5 = [spremeni_v_sekunde(cas) for cas in vsi_casi_sg]
 
 #===========================================================================================================================================================
 skupaj = zapis_comb + zapis_dw + zapis_gs + zapis_sl + zapis_sg
@@ -170,7 +178,6 @@ for nabor in skupaj:
         #ce vsebuje cas pri tej disciplini -> zamenjaj ta "none" s casom in mestom
         if skupen_zapis[ime][disciplina][0] == "did not participate":
             skupen_zapis[ime][disciplina] = [(cas, mesto)]
-
 
 
 
