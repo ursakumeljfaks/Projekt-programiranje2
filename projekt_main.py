@@ -5,6 +5,43 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
+class Tekmovalka:
+    def __init__(self, ime, drzava):
+        self._ime = ime
+        self._drzava = drzava
+        self._medalje = {'zlato':0, 'srebro':0, 'bron':0}
+        self._rezultati = dict()
+    
+    def ime(self):
+        return self._ime
+
+    def drzava(self):
+        return self._drzava
+    
+    def medalje(self):
+        return self._medalje
+    
+    def rezultati(self):
+        return self._rezultati
+    
+    def dodaj_disciplino(self, disciplina, mesto, cas):
+        self._rezultati[disciplina] = {'mesto':mesto, 'cas':cas}
+        if mesto == 1:
+            self._medalje['zlato'] += 1
+        elif mesto == 2:
+            self._medalje['srebro'] += 1
+        elif mesto == 3:
+            self._medalje['bron'] += 1
+    
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + self._ime + ", " + self._drzava + ", " + str(self._medalje) + ", " + str(self._rezultati) + ")"
+    
+    def __str__(self):
+        return "Ime: {},\nDržava: {},\nMedalje: {},\nRezultati: {}".format(self._ime, self._drzava, self._medalje, self._rezultati)
+
+
+
 def spremeni_v_sekunde(cas):
     minute, sekunde = cas.split(':')
     total = float(minute)*60 + float(sekunde)
@@ -33,6 +70,22 @@ drzava_comb = vse_comb[1::2]
 mesta_comb = list(range(1, len(imena_comb)+1))
 
 cas_comb_total = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna_combined)
+
+
+#### slovar objektov (ime:objekt)
+vse_tekmovalke = dict()
+
+disciplina = 'Combined'
+for i in range(len(cas_comb_total)):
+    ime = imena_comb[i]
+    drzava = drzava_comb[i]
+    mesto = mesta_comb[i]
+    cas = cas_comb_total[i]
+    if ime not in vse_tekmovalke:
+        vse_tekmovalke[ime] = Tekmovalka(ime, drzava)
+    vse_tekmovalke[ime].dodaj_disciplino(disciplina, mesto, cas)
+    
+
 
 #škatla z brki
 data1 = [spremeni_v_sekunde(cas) for cas in cas_comb_total]
@@ -65,6 +118,18 @@ dnf_dw= re.findall(r'<td><span data-sort-value="9\:99\.99.+!">(.+)</span></td>',
 cas_dw = [cas_dw1[0]] + cas_dw1 + dnf_dw
 
 
+disciplina = 'Downhill'
+for i in range(len(cas_dw)):
+    ime = imena_dw[i]
+    drzava = drzava_dw[i]
+    mesto = mesta_dw[i]
+    cas = cas_dw[i]
+    if ime not in vse_tekmovalke:
+        vse_tekmovalke[ime] = Tekmovalka(ime, drzava)
+    vse_tekmovalke[ime].dodaj_disciplino(disciplina, mesto, cas)
+
+
+
 #škatla z brki
 data2 = [spremeni_v_sekunde(cas) for cas in cas_dw1]
 slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_dw, mesta_dw)
@@ -81,6 +146,19 @@ mesta_gs = list(range(1,15)) + [14] + list(range(16,90))
 #cas_gs_run2 = vsi_casi_gs[1::3]
 cas_gs_total1 = re.findall(r'<td.*>([2|3]\:*\d\d\.\d\d)</td>', spletna_giant_slalom)
 cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1:]
+
+
+disciplina = 'Giant Slalom'
+for i in range(len(cas_gs_total)):
+    ime = imena_gs[i]
+    drzava = drzava_gs[i]
+    mesto = mesta_gs[i]
+    cas = cas_gs_total[i]
+    if ime not in vse_tekmovalke:
+        vse_tekmovalke[ime] = Tekmovalka(ime, drzava)
+    vse_tekmovalke[ime].dodaj_disciplino(disciplina, mesto, cas)
+
+
 
 #škatla z brki
 data3 = [spremeni_v_sekunde(cas) for cas in cas_gs_total]
@@ -99,6 +177,19 @@ vsi_casi_sl = re.findall(r'<td>(\d*\:*\d\d\.\d\d)</td>', spletna_slalom)
 #cas_sl_run2 = vsi_casi_sl[1::3] narobe
 cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
 
+
+disciplina = 'Slalom'
+for i in range(len(cas_sl_total)):
+    ime = imena_sl[i]
+    drzava = drzava_sl[i]
+    mesto = mesta_sl[i]
+    cas = cas_sl_total[i]
+    if ime not in vse_tekmovalke:
+        vse_tekmovalke[ime] = Tekmovalka(ime, drzava)
+    vse_tekmovalke[ime].dodaj_disciplino(disciplina, mesto, cas)
+
+
+
 #škatla z brki
 data4 = [spremeni_v_sekunde(cas) for cas in cas_sl_total]
 slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sl, mesta_sl)
@@ -114,6 +205,19 @@ mesta_sg = list(range(1,11)) + [11, 11] + list(range(13,len(imena_sg)+1))
 vsi_casi = re.findall(r'<td.*>(\d*\:*\d\d\.\d\d)</td>', spletna_superg)
 dnf_sg= re.findall(r'<td>(\w\w\w)</td>', spletna_superg)
 vsi_casi_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:] #+dnf_sg
+
+
+disciplina = 'Super-G'
+for i in range(len(vsi_casi_sg)):
+    ime = imena_sg[i]
+    drzava = drzava_sg[i]
+    mesto = mesta_sg[i]
+    cas = vsi_casi_sg[i]
+    if ime not in vse_tekmovalke:
+        vse_tekmovalke[ime] = Tekmovalka(ime, drzava)
+    vse_tekmovalke[ime].dodaj_disciplino(disciplina, mesto, cas)
+
+
 
 #škatla z brki
 data5 = [spremeni_v_sekunde(cas) for cas in vsi_casi_sg]
@@ -172,8 +276,4 @@ ax.legend()
 plt.show()
 
 
-
-
-#dosežene medalje pravilno
-#{Germany: [1, 1, 1], Austria: [1, 3, 2], United States: [1, 0, 1], Slovenia: [2, 0, 0], Switzerland: [1, 1, 0]}
-
+#print(vse_tekmovalke['Tina Maze'])
