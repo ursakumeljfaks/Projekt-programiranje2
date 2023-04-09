@@ -4,6 +4,43 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
+class Tekmovalka:
+    def __init__(self, ime, drzava):
+        self._ime = ime
+        self._drzava = drzava
+        self._medalje = {'zlato':0, 'srebro':0, 'bron':0}
+        self._rezultati = dict()
+    
+    def ime(self):
+        return self._ime
+
+    def drzava(self):
+        return self._drzava
+    
+    def medalje(self):
+        return self._medalje
+    
+    def rezultati(self):
+        return self._rezultati
+    
+    def dodaj_disciplino(self, disciplina, mesto, cas):
+        self._rezultati[disciplina] = {'mesto':mesto, 'cas':cas}
+        if mesto == 1:
+            self._medalje['zlato'] += 1
+        elif mesto == 2:
+            self._medalje['srebro'] += 1
+        elif mesto == 3:
+            self._medalje['bron'] += 1
+    
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + self._ime + ", " + self._drzava + ", " + str(self._medalje) + ", " + str(self._rezultati) + ")"
+    
+    def __str__(self):
+        return "Ime: {},\nDržava: {},\nMedalje: {},\nRezultati: {}".format(self._ime, self._drzava, self._medalje, self._rezultati)
+
+
+
 def spremeni_v_sekunde(cas):
     minute, sekunde = cas.split(':')
     total = float(minute)*60 + float(sekunde)
@@ -40,8 +77,6 @@ dnf_comb = ["dnf" for _ in range(17)]
 mesta_comb = list(range(1, len(imena_comb)+1))
 
 cas_comb_total = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna_combined)
-zapis_comb = [("combined",i,j,k,l) for i,j,k,l in zip(mesta_comb, imena_comb, drzava_comb, cas_comb_total+dnf_comb)]
-
 
 #škatla z brki
 data1 = [spremeni_v_sekunde(cas) for cas in cas_comb_total]
@@ -61,7 +96,9 @@ mesta_dw = [1, 1] + mesto2
 cas_dw = re.findall(r'<td.*>(\d\:\d\d\.\d\d)', spletna_downhill) 
 dnf_dw = ["dnf" for _ in range(7)]
 
-zapis_dw = [("downhill",j,k,l) for i,j,k,l in zip(mesta_dw, imena_dw, drzava_dw, cas_dw+dnf_dw)]
+cas_dw1 = re.findall(r'<td>(\d\:\d\d\.\d\d)', spletna_downhill)
+dnf_dw= re.findall(r'<td><span data-sort-value="9\:99\.99.+!">(.+)</span></td>', spletna_downhill)
+cas_dw = [cas_dw1[0]] + cas_dw1 + dnf_dw
 
 
 #škatla z brki
@@ -77,11 +114,7 @@ drzava_gs = re.findall(r'<td align="left">.+<a href="/wiki/.+" title=".+ at the 
 mesta_gs = list(range(1,15)) + [14] + list(range(16,90))
 
 cas_gs_total1 = re.findall(r'<td.*>([2|3]\:*\d\d\.\d\d)</td>', spletna_giant_slalom)
-cas_gs = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1:]
-dnf_gs =["dnf" for _ in range(22)]
-
-zapis_gs = [("giant-slalom",i,j,k,l) for i,j,k,l in zip(mesta_gs, imena_gs, drzava_gs, cas_gs+dnf_gs)]
-
+cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1:]
 
 #škatla z brki
 data3 = [spremeni_v_sekunde(cas) for cas in cas_gs]
@@ -96,10 +129,9 @@ drzava_sl = re.findall(r'<td align="left">.+<a href="/wiki/.+" title=".+ at the 
 mesta_sl = list(range(1,len(imena_sl)+1))
 
 vsi_casi_sl = re.findall(r'<td>(\d*\:*\d\d\.\d\d)</td>', spletna_slalom)
-cas_sl = vsi_casi_sl[2::3][:-3] # prou
-dnf_sl = ["dnf" for _ in range(38)]
-
-zapis_sl = [("slalom",i,j,k,l) for i,j,k,l in zip(mesta_sl, imena_sl, drzava_sl, cas_sl+dnf_sl)]
+#cas_sl_run1 = vsi_casi_sl[::3] narobe
+#cas_sl_run2 = vsi_casi_sl[1::3] narobe
+cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
 
 #škatla z brki
 data4 = [spremeni_v_sekunde(cas) for cas in cas_sl]
@@ -115,10 +147,8 @@ drzava_sg = vse_sg[1::2]
 mesta_sg = list(range(1,11)) + [11, 11] + list(range(13,len(imena_sg)+1))
 
 vsi_casi = re.findall(r'<td.*>(\d*\:*\d\d\.\d\d)</td>', spletna_superg)
-cas_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:]
-dnf_sg = ["dnf" for _ in range(19)]
-
-zapis_sg = [("super-g",i,j,k,l) for i,j,k,l in zip(mesta_sg, imena_sg, drzava_sg, cas_sg+dnf_sg)]
+dnf_sg= re.findall(r'<td>(\w\w\w)</td>', spletna_superg)
+vsi_casi_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:] #+dnf_sg
 
 #škatla z brki
 data5 = [spremeni_v_sekunde(cas) for cas in cas_sg]
@@ -224,11 +254,7 @@ ax.legend()
 
 #plt.show()
 
-#VELIKOST POPULACIJ
-nemcija_spletna = requests.get("https://simple.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population").text
-nemcija = re.findall(r'<tr>.*<td align:left"><span class="flagicon">.*</span>.*<a href="/wiki/.+ title="(.+)"></td><td style="text-align:right">(.*)</td>', nemcija_spletna)
-#nem = re.findall(r'<tr>.*?<td style="text-align:center;">2014</td>.*?<td style="text-align:center;">(.*?)</td>', nemcija_spletna)
-#print(nemcija)
+
 
 
 #dosežene medalje pravilno
