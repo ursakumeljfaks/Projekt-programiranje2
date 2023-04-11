@@ -238,12 +238,21 @@ ax.legend()
 
 #plt.show()
 
-#VELIKOST POPULACIJ
-nemcija_spletna = requests.get("https://simple.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population").text
-nemcija = re.findall(r'<tr>.*?<td align="left">.*?<a .*?>([a-zA-Z ,()]*?)</a>.*?<td .*?>(.*?)</td>', nemcija_spletna, re.MULTILINE + re.DOTALL)
-#nem = re.findall(r'<tr>.*?<td style="text-align:center;">2014</td>.*?<td style="text-align:center;">(.*?)</td>', nemcija_spletna)
-#with open("spletna.txt", "w", encoding="utf8") as dat: print(nemcija_spletna, file=dat)
-print(nemcija)
+#Primerjava stevila medalj glede na velikost populacije
+drzave_spletna = requests.get("https://simple.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population").text
+drzave = re.findall(r'<tr>.*?<td align="left">.*?<a .*?>([a-zA-Z ,()]*?)</a>.*?<td .*?>(.*?)</td>', drzave_spletna, re.MULTILINE + re.DOTALL)#2,19,25,98,143]
+Usa = drzave[2][1].replace(",","")
+Germany = drzave[18][1].replace(",","")
+Austria = drzave[98][1].replace(",","")
+Switzerland = drzave[99][1].replace(",","")
+Slovenia = drzave[146][1].replace(",","")
+
+delez_germany = format((sum(slovar_medalj["Germany"])/int(Germany))*100, ".2e")
+delez_austria = format((sum(slovar_medalj["Austria"])/int(Austria))*100, ".2e")
+delez_usa = format((sum(slovar_medalj["United States"])/int(Usa))*100, ".2e")
+delez_switzerland = format((sum(slovar_medalj["Switzerland"])/int(Switzerland))*100, ".2e")
+delez_slovenia = format((sum(slovar_medalj["Slovenia"])/int(Slovenia))*100, ".2e")
+
 
 
 #dosežene medalje pravilno
