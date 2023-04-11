@@ -57,7 +57,6 @@ def medalje_za_drzave(slovar, drzave, mesta):
         if drzava not in slovar:
             slovar[drzava] = [0,0,0]
         slovar[drzava][mesta[i]-1] += 1
-    return slovar
 
 
 #### slovar objektov (ime:objekt)
@@ -65,6 +64,7 @@ vse_tekmovalke = dict()
 
 def slovar_objektov(disciplina, imena, drzave, casi, mesta):
     for i in range(len(casi)):
+        #print(i)
         ime = imena[i]
         drzava = drzave[i]
         mesto = mesta[i]
@@ -73,109 +73,177 @@ def slovar_objektov(disciplina, imena, drzave, casi, mesta):
             vse_tekmovalke[ime] = Tekmovalka(ime, drzava)
         vse_tekmovalke[ime].dodaj_disciplino(disciplina, mesto, cas)
 
+
+data = []
+
 #COMBINED SKIING WOMEN=================================================================================================================
+url = 'https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_combined'
+spletna = requests.get(url).text
+disciplina = 'Combined'
+vse = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna)
+imena = vse[::2]
+drzave = vse[1::2]
+casi = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna)
+mesta = list(range(1, len(imena)+1))
+dnf = ["dnf" for _ in range(len(mesta)-len(casi))]
 
-spletna_combined = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_combined').text
-vse_comb = re.findall(r'<td align="left">.*<a href="/wiki/.+" title=".+">(.+)</a>.*</td>', spletna_combined)
-imena_comb = vse_comb[::2]
-drzava_comb = vse_comb[1::2]
-dnf_comb = ["dnf" for _ in range(17)]
+slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
+data.append([spremeni_v_sekunde(cas) for cas in casi])
+medalje_za_drzave(slovar_medalj, drzave, mesta)
 
-mesta_comb = list(range(1, len(imena_comb)+1))
+# url = 'https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_combined'
+# spletna = requests.get(url).text
+# vse = re.findall(r'<td align="left">.*<a href="/wiki/.+" title=".+">(.+)</a>.*</td>', spletna)
+# imena = vse[::2]
+# drzave = vse[1::2]
+# mesta = list(range(1, len(imena)+1))
+# casi = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna)
+# dnf = ["dnf" for _ in range(len(imena)-len(casi))]
 
-cas_comb_total = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna_combined)
+# slovar_objektov('Combined', imena, drzave, casi+dnf, mesta)
 
-slovar_objektov('Combined', imena_comb, drzava_comb, cas_comb_total+dnf_comb, mesta_comb)
+# #škatla z brki
+# data.append([spremeni_v_sekunde(cas) for cas in casi])
 
-#škatla z brki
-data1 = [spremeni_v_sekunde(cas) for cas in cas_comb_total]
-
-slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_comb, mesta_comb)
+# slovar_medalj = medalje_za_drzave(slovar_medalj, drzave, mesta)
 
 
 #DOWNHILL WOMEN=================================================================================================================================
-spletna_downhill = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_downhill').text
-vse_dw = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna_downhill) # druga svica manjka
-imena_dw = vse_dw[::2]
-drzava_dw = vse_dw[1::2]
+url = 'https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_downhill'
+spletna = requests.get(url).text
+disciplina = 'Downhill'
+vse = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna)
+imena = vse[::2]
+drzave = vse[1::2]
+casi = re.findall(r'<td.*>(\d\:\d\d\.\d\d)', spletna)
+mesta = [1, 1] + list(range(3,len(imena)+1))
+dnf = ["dnf" for _ in range(len(mesta)-len(casi))]
 
-mesto2 = list(range(3,len(imena_dw)+1)) #range(3,43)
-mesta_dw = [1, 1] + mesto2
+slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
+data.append([spremeni_v_sekunde(cas) for cas in casi])
+medalje_za_drzave(slovar_medalj, drzave, mesta)
 
-cas_dw = re.findall(r'<td.*>(\d\:\d\d\.\d\d)', spletna_downhill) 
-dnf_dw = ["dnf" for _ in range(7)]
+# spletna_downhill = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_downhill').text
+# vse_dw = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna_downhill) # druga svica manjka
+# imena_dw = vse_dw[::2]
+# drzava_dw = vse_dw[1::2]
 
+# mesto2 = list(range(3,len(imena_dw)+1)) #range(3,43)
+# mesta_dw = [1, 1] + mesto2
 
+# cas_dw = re.findall(r'<td.*>(\d\:\d\d\.\d\d)', spletna_downhill) 
+# dnf_dw = ["dnf" for _ in range(7)]
 
-slovar_objektov('Downhill', imena_dw, drzava_dw, cas_dw+dnf_dw, mesta_dw)
+# slovar_objektov('Downhill', imena_dw, drzava_dw, cas_dw+dnf_dw, mesta_dw)
 
-
-#škatla z brki
-data2 = [spremeni_v_sekunde(cas) for cas in cas_dw]
-slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_dw, mesta_dw)
+# #škatla z brki
+# data2 = [spremeni_v_sekunde(cas) for cas in cas_dw]
+# slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_dw, mesta_dw)
 
 
 #GIANT SLALOM WOMEN===========================================================================================================================================
-spletna_giant_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_giant_slalom').text
-imena_gs = re.findall(r'<td align="left"><a href="/wiki/.+" title=".+">(.+)</a></td>', spletna_giant_slalom)
-drzava_gs = re.findall(r'<td align="left">.+<a href="/wiki/.+" title=".+ at the 2014 Winter Olympics">(.+)</a></td>', spletna_giant_slalom)
+url = 'https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_giant_slalom'
+spletna = requests.get(url).text
+disciplina = 'Giant-Slalom'
+vse = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna)
+imena = vse[::2]
+drzave = vse[1::2]
+casi = re.findall(r'<td.*>([2|3]\:*\d\d\.\d\d)</td>', spletna)
+mesta = list(range(1,15)) + [14] + list(range(16,90))
+dnf = ["dnf" for _ in range(len(mesta)-len(casi))]
 
-mesta_gs = list(range(1,15)) + [14] + list(range(16,90))
+slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
+data.append([spremeni_v_sekunde(cas) for cas in casi])
+medalje_za_drzave(slovar_medalj, drzave, mesta)
 
-cas_gs_total1 = re.findall(r'<td.*>([2|3]\:*\d\d\.\d\d)</td>', spletna_giant_slalom)
-cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1:]
-dnf_gs = ["dnf" for _ in range(22)]
+# spletna_giant_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_giant_slalom').text
+# imena_gs = re.findall(r'<td align="left"><a href="/wiki/.+" title=".+">(.+)</a></td>', spletna_giant_slalom)
+# drzava_gs = re.findall(r'<td align="left">.+<a href="/wiki/.+" title=".+ at the 2014 Winter Olympics">(.+)</a></td>', spletna_giant_slalom)
+
+# mesta_gs = list(range(1,15)) + [14] + list(range(16,90))
+
+# cas_gs_total1 = re.findall(r'<td.*>([2|3]\:*\d\d\.\d\d)</td>', spletna_giant_slalom)
+# cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1:]
+# dnf_gs = ["dnf" for _ in range(22)]
 
 
-slovar_objektov('Giant-Slalom', imena_gs, drzava_gs, cas_gs_total+dnf_gs, mesta_gs)
+# slovar_objektov('Giant-Slalom', imena_gs, drzava_gs, cas_gs_total+dnf_gs, mesta_gs)
 
 
 #škatla z brki
-data3 = [spremeni_v_sekunde(cas) for cas in cas_gs_total]
+#data3 = [spremeni_v_sekunde(cas) for cas in cas_gs_total]
 #dosežene medalje
-slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_gs, mesta_gs)
+#slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_gs, mesta_gs)
 
 #SLALOM WOMEN===================================================================================================================================
-spletna_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_slalom').text
-imena_sl = re.findall(r'<td align="left"><a href="/wiki/.+" title=".+">(.+)</a></td>', spletna_slalom)
-drzava_sl = re.findall(r'<td align="left">.+<a href="/wiki/.+" title=".+ at the 2014 Winter Olympics">(.+)</a></td>', spletna_slalom)
+url = 'https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_slalom'
+spletna = requests.get(url).text
+disciplina = 'Slalom'
+vse = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna)
+imena = vse[::2]
+drzave = vse[1::2]
+casi = re.findall(r'<td>(\d*\:*\d\d\.\d\d)</td>', spletna)[2::3][:-3]
+mesta = list(range(1, len(imena)+1))
+dnf = ["dnf" for _ in range(len(mesta)-len(casi))]
 
-mesta_sl = list(range(1,len(imena_sl)+1))
+slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
+data.append([spremeni_v_sekunde(cas) for cas in casi])
+medalje_za_drzave(slovar_medalj, drzave, mesta)
 
-vsi_casi_sl = re.findall(r'<td>(\d*\:*\d\d\.\d\d)</td>', spletna_slalom)
-#cas_sl_run1 = vsi_casi_sl[::3] narobe
-#cas_sl_run2 = vsi_casi_sl[1::3] narobe
-cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
-dnf_sl = ["dnf" for _ in range(38)]
+# spletna_slalom = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_slalom').text
+# imena_sl = re.findall(r'<td align="left"><a href="/wiki/.+" title=".+">(.+)</a></td>', spletna_slalom)
+# drzava_sl = re.findall(r'<td align="left">.+<a href="/wiki/.+" title=".+ at the 2014 Winter Olympics">(.+)</a></td>', spletna_slalom)
 
+# mesta_sl = list(range(1,len(imena_sl)+1))
 
-slovar_objektov('Slalom', imena_sl, drzava_sl, cas_sl_total+dnf_sl, mesta_sl)
-
-#škatla z brki
-data4 = [spremeni_v_sekunde(cas) for cas in cas_sl_total]
-slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sl, mesta_sl)
-
-
-#SUPER-G WOMEN============================================================================================================================
-spletna_superg = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_super-G').text
-vse_sg = re.findall(r'<td align="left">.*?<a href="/wiki/.+?".*>(.+?)</a>', spletna_superg) 
-imena_sg = vse_sg[::2]
-drzava_sg = vse_sg[1::2]
-
-mesta_sg = list(range(1,11)) + [11, 11] + list(range(13,len(imena_sg)+1))
-
-vsi_casi = re.findall(r'<td.*>(\d*\:*\d\d\.\d\d)</td>', spletna_superg)
-dnf_sg= re.findall(r'<td>(\w\w\w)</td>', spletna_superg)
-vsi_casi_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:] #+dnf_sg
-
-dnf_sg = ["dnf" for _ in range(19)]
+# vsi_casi_sl = re.findall(r'<td>(\d*\:*\d\d\.\d\d)</td>', spletna_slalom)
+# #cas_sl_run1 = vsi_casi_sl[::3] narobe
+# #cas_sl_run2 = vsi_casi_sl[1::3] narobe
+# cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
+# dnf_sl = ["dnf" for _ in range(38)]
 
 
-slovar_objektov('Super-G', imena_sg, drzava_sg, vsi_casi_sg+dnf_sg, mesta_sg)
+# slovar_objektov('Slalom', imena_sl, drzava_sl, cas_sl_total+dnf_sl, mesta_sl)
 
-#škatla z brki
-data5 = [spremeni_v_sekunde(cas) for cas in vsi_casi_sg]
+# #škatla z brki
+# data4 = [spremeni_v_sekunde(cas) for cas in cas_sl_total]
+# slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sl, mesta_sl)
 
+
+# #SUPER-G WOMEN============================================================================================================================
+url = 'https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_super-G'
+spletna = requests.get(url).text
+disciplina = 'Super-G'
+vse = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna)
+imena = vse[::2]
+drzave = vse[1::2]
+casi = re.findall(r'<td.*>(\d*\:*\d\d\.\d\d)</td>', spletna)
+casi = casi[1:12] + [casi[11]] + casi[12:]
+mesta = list(range(1,11)) + [11, 11] + list(range(13,len(imena)+1))
+dnf = ["dnf" for _ in range(len(mesta)-len(casi))]
+
+slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
+data.append([spremeni_v_sekunde(cas) for cas in casi])
+medalje_za_drzave(slovar_medalj, drzave, mesta)
+
+# spletna_superg = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_super-G').text
+# vse_sg = re.findall(r'<td align="left">.*?<a href="/wiki/.+?".*>(.+?)</a>', spletna_superg) 
+# imena_sg = vse_sg[::2]
+# drzava_sg = vse_sg[1::2]
+
+# mesta_sg = list(range(1,11)) + [11, 11] + list(range(13,len(imena_sg)+1))
+
+# vsi_casi = re.findall(r'<td.*>(\d*\:*\d\d\.\d\d)</td>', spletna_superg)
+# dnf_sg= re.findall(r'<td>(\w\w\w)</td>', spletna_superg)
+# vsi_casi_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:] #+dnf_sg
+
+# dnf_sg = ["dnf" for _ in range(19)]
+
+
+# slovar_objektov('Super-G', imena_sg, drzava_sg, vsi_casi_sg+dnf_sg, mesta_sg)
+
+# #škatla z brki
+# data5 = [spremeni_v_sekunde(cas) for cas in vsi_casi_sg]
 
 #pisanje v datoteko===============================================================================================================================================
 with open("prikaz_podatkov.txt", "w", encoding='utf8') as dat:
@@ -198,10 +266,10 @@ with open("prikaz_podatkov.txt", "w", encoding='utf8') as dat:
         dat.write("\n")
 
 #===========================================================================================================================================
-data = [data1, data2, data3, data4, data5]
+#data = [data1, data2, data3, data4, data5]
 
-M = max(data1 + data2 + data3 + data4 + data5)
-m = min(data1 + data2 + data3 + data4 + data5)
+M = max(data[0] + data[1] + data[2] + data[3] + data[4])
+m = min(data[0] + data[1] + data[2] + data[3] + data[4])
 razmak = int((M - m)/8)
 ves_data = list(range(int(m), int(M), razmak))
 casi = [spremeni_v_minute(i) for i in ves_data]
@@ -219,7 +287,7 @@ plt.yticks(ves_data, casi)
 
 #bar chart za medalje
 #print(medalje_za_drzave(drzava_sg, mesta_sg)) #zato ker manjka svica pri downhill nam da se italijo
-slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sg, mesta_sg)
+#slovar_medalj = medalje_za_drzave(slovar_medalj, drzava_sg, mesta_sg)
 
 drzava = list(slovar_medalj.keys())
 zlata, srebrna, bronasta = [], [], []
@@ -257,4 +325,3 @@ delez_slovenia = format((sum(slovar_medalj["Slovenia"])/int(Slovenia))*100, ".2e
 
 #dosežene medalje pravilno
 #{Germany: [1, 1, 1], Austria: [1, 3, 2], United States: [1, 0, 1], Slovenia: [2, 0, 0], Switzerland: [1, 1, 0]}
-
