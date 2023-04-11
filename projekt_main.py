@@ -1,8 +1,6 @@
 import requests
 import re
 import matplotlib.pyplot as plt
-import numpy as np
-
 
 
 class Tekmovalka:
@@ -61,11 +59,20 @@ def medalje_za_drzave(slovar, drzave, mesta):
         slovar[drzava][mesta[i]-1] += 1
     return slovar
 
-slovar_vseh_podatkov = {}
-disciplina = ["COMBINED", "DOWNHILL", "GIANT-SLALOM", "SLALOM", "SUPER-G"]
-def zberi_podatke(disciplina, imena, drzava, cas, mesta):
-    """{ime: drzava, [disciplina, cas, mesto]}"""
-    pass
+
+#### slovar objektov (ime:objekt)
+vse_tekmovalke = dict()
+
+def slovar_objektov(disciplina, imena, drzave, casi, mesta):
+    for i in range(len(casi)):
+        ime = imena[i]
+        drzava = drzave[i]
+        mesto = mesta[i]
+        cas = casi[i]
+        if ime not in vse_tekmovalke:
+            vse_tekmovalke[ime] = Tekmovalka(ime, drzava)
+        vse_tekmovalke[ime].dodaj_disciplino(disciplina, mesto, cas)
+
 #COMBINED SKIING WOMEN=================================================================================================================
 
 spletna_combined = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_combined').text
@@ -77,7 +84,8 @@ dnf_comb = ["dnf" for _ in range(17)]
 mesta_comb = list(range(1, len(imena_comb)+1))
 
 cas_comb_total = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna_combined)
-zapis_comb = [("combined",i,j,k,l) for i,j,k,l in zip(mesta_comb, imena_comb, drzava_comb, cas_comb_total+dnf_comb)]
+
+slovar_objektov('Combined', imena_comb, drzava_comb, cas_comb_total+dnf_comb, mesta_comb)
 
 #škatla z brki
 data1 = [spremeni_v_sekunde(cas) for cas in cas_comb_total]
@@ -97,7 +105,10 @@ mesta_dw = [1, 1] + mesto2
 cas_dw = re.findall(r'<td.*>(\d\:\d\d\.\d\d)', spletna_downhill) 
 dnf_dw = ["dnf" for _ in range(7)]
 
-zapis_dw = [("downhill",i,j,k,l) for i,j,k,l in zip(mesta_dw, imena_dw, drzava_dw, cas_dw+dnf_dw)]
+
+
+slovar_objektov('Downhill', imena_dw, drzava_dw, cas_dw+dnf_dw, mesta_dw)
+
 
 #škatla z brki
 data2 = [spremeni_v_sekunde(cas) for cas in cas_dw]
@@ -114,7 +125,10 @@ mesta_gs = list(range(1,15)) + [14] + list(range(16,90))
 cas_gs_total1 = re.findall(r'<td.*>([2|3]\:*\d\d\.\d\d)</td>', spletna_giant_slalom)
 cas_gs_total = (cas_gs_total1[:15] + [cas_gs_total1[14]] + cas_gs_total1[15:])[1:]
 dnf_gs = ["dnf" for _ in range(22)]
-zapis_gs = [("giant-slalom",i,j,k,l) for i,j,k,l in zip(mesta_gs, imena_gs, drzava_gs, cas_gs_total+dnf_gs)]
+
+
+slovar_objektov('Giant-Slalom', imena_gs, drzava_gs, cas_gs_total+dnf_gs, mesta_gs)
+
 
 #škatla z brki
 data3 = [spremeni_v_sekunde(cas) for cas in cas_gs_total]
@@ -134,8 +148,8 @@ vsi_casi_sl = re.findall(r'<td>(\d*\:*\d\d\.\d\d)</td>', spletna_slalom)
 cas_sl_total = vsi_casi_sl[2::3][:-3] # prou
 dnf_sl = ["dnf" for _ in range(38)]
 
-zapis_sl = [("slalom",i,j,k,l) for i,j,k,l in zip(mesta_sl, imena_sl, drzava_sl, cas_sl_total+dnf_sl)]
 
+slovar_objektov('Slalom', imena_sl, drzava_sl, cas_sl_total+dnf_sl, mesta_sl)
 
 #škatla z brki
 data4 = [spremeni_v_sekunde(cas) for cas in cas_sl_total]
@@ -156,55 +170,32 @@ vsi_casi_sg = vsi_casi[1:12] + [vsi_casi[11]] + vsi_casi[12:] #+dnf_sg
 
 dnf_sg = ["dnf" for _ in range(19)]
 
-zapis_sg = [("super-g",i,j,k,l) for i,j,k,l in zip(mesta_sg, imena_sg, drzava_sg, vsi_casi_sg+dnf_sg)]
+
+slovar_objektov('Super-G', imena_sg, drzava_sg, vsi_casi_sg+dnf_sg, mesta_sg)
 
 #škatla z brki
 data5 = [spremeni_v_sekunde(cas) for cas in vsi_casi_sg]
 
-#===========================================================================================================================================================
-skupaj = zapis_comb + zapis_dw + zapis_gs + zapis_sl + zapis_sg
-skupen_zapis = {}
-
-discipline = set(nabor[0] for nabor in skupaj)
-
-for nabor in skupaj:
-    if len(nabor) >= 5:
-        disciplina, mesto, ime, drzava, cas = nabor
-        if ime not in skupen_zapis:
-            skupen_zapis[ime] = {"drzava": drzava}
-            #ustvarim vse discipline in dodam "none"
-            for i in discipline:
-                skupen_zapis[ime][i] = ["did not participate"]
-        #ce vsebuje cas pri tej disciplini -> zamenjaj ta "none" s casom in mestom
-        if skupen_zapis[ime][disciplina][0] == "did not participate":
-            skupen_zapis[ime][disciplina] = [(cas, mesto)]
-
-
 
 #pisanje v datoteko===============================================================================================================================================
-with open("prikaz_podatkov.txt", "w") as dat:
+with open("prikaz_podatkov.txt", "w", encoding='utf8') as dat:
     dat.write("IME".ljust(30) + "DRZAVA".ljust(20) + "GIANT-SLALOM".ljust(25) + "SUPER-G".ljust(25) + "SLALOM".ljust(25) + "COMBINED".ljust(25) + "DOWNHILL\n")
     
-    #'Marion Bertrand': {'drzava': 'France', 'super-g': ['none'], 'slalom': ['none'], 
-    #'giant-slalom': [('-', 79)], 'combined': ['none'], 'downhill': ['none']} 
-    for ime, podatki in skupen_zapis.items():
-        drzava = podatki["drzava"]
+    # 'Ragnhild Mowinckel': Tekmovalka(Ragnhild Mowinckel, Norway, {'zlato': 0, 'srebro': 0, 'bron': 0}, {'Combined': {'mesto': 6, 'cas': '2:36.15'}}) 
+    for ime, objekt in vse_tekmovalke.items():
+        drzava = objekt.drzava()
         #ljust(30) = left align za 30 presledkov 
         dat.write(f"{ime.ljust(30)}{drzava.ljust(20)}")
         
-        for disciplina in ["giant-slalom", "super-g", "slalom", "combined", "downhill"]:
-            if disciplina in podatki:
-                casi = podatki[disciplina]
-                if len(casi) == 1:
-                    dat.write(f"{str(casi[0]).ljust(25)}")
-                elif len(casi) == 2:
-                    dat.write(f"{str(casi[0]).ljust(25)}")
+        for disciplina in ["Giant-Slalom", "Super-G", "Slalom", "Combined", "Downhill"]:
+            if disciplina in objekt.rezultati():
+                cas = objekt.rezultati()[disciplina]['cas']
+                mesto = objekt.rezultati()[disciplina]['mesto']
+                dat.write(f"{str((mesto, cas)).ljust(25)}")
+            else:
+                dat.write("did not participate".ljust(25))
         
         dat.write("\n")
-
-
-
-
 
 #===========================================================================================================================================
 data = [data1, data2, data3, data4, data5]
@@ -223,20 +214,6 @@ plt.minorticks_off()
 plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
 plt.yticks(ves_data, casi)
 #fig.savefig("Box plot")
-#plt.show()
-
-
-###drugi nacin, men zgleda prvi bols ker so okrogle cifre na grafu
-#vsi_casi = data1+data2+data3+data4+data5
-#razmak = (max(vsi_casi) - min(vsi_casi)) / 8
-#napisi_sek = [min(vsi_casi)+i*razmak for i in range(9)]
-#napisi_min = [spremeni_v_minute(i) for i in napisi_sek[::len(napisi_sek)//5]]
-#fig = plt.figure(num="Box plot", figsize=(7, 7))
-#plt.boxplot(data)
-#plt.semilogy()
-#plt.minorticks_off()
-#plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
-#plt.yticks(napisi_sek, napisi_min)
 #plt.show()
 
 
@@ -261,7 +238,12 @@ ax.legend()
 
 #plt.show()
 
-
+#VELIKOST POPULACIJ
+nemcija_spletna = requests.get("https://simple.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population").text
+nemcija = re.findall(r'<tr>.*?<td align="left">.*?<a .*?>([a-zA-Z ,()]*?)</a>.*?<td .*?>(.*?)</td>', nemcija_spletna, re.MULTILINE + re.DOTALL)
+#nem = re.findall(r'<tr>.*?<td style="text-align:center;">2014</td>.*?<td style="text-align:center;">(.*?)</td>', nemcija_spletna)
+#with open("spletna.txt", "w", encoding="utf8") as dat: print(nemcija_spletna, file=dat)
+print(nemcija)
 
 
 #dosežene medalje pravilno
