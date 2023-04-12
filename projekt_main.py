@@ -240,7 +240,7 @@ ax.legend()
 
 #Primerjava stevila medalj glede na velikost populacije
 drzave_spletna = requests.get("https://simple.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population").text
-drzave = re.findall(r'<tr>.*?<td align="left">.*?<a .*?>([a-zA-Z ,()]*?)</a>.*?<td .*?>(.*?)</td>', drzave_spletna, re.MULTILINE + re.DOTALL)#2,19,25,98,143]
+drzave = re.findall(r'<tr>.*?<td align="left">.*?<a .*?>([a-zA-Z ,()]*?)</a>.*?<td .*?>(.*?)</td>', drzave_spletna, re.MULTILINE + re.DOTALL)
 Usa = drzave[2][1].replace(",","")
 Germany = drzave[18][1].replace(",","")
 Austria = drzave[98][1].replace(",","")
