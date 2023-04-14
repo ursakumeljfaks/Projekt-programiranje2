@@ -1,6 +1,7 @@
 import requests
 import re
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Tekmovalka:
@@ -87,6 +88,8 @@ casi = re.findall(r'<td>(2\:*\d\d\.\d\d)</td>', spletna)
 mesta = list(range(1, len(imena)+1))
 dnf = ["dnf" for _ in range(len(mesta)-len(casi))]
 
+
+
 slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
 data.append([spremeni_v_sekunde(cas) for cas in casi])
 medalje_za_drzave(slovar_medalj, drzave, mesta)
@@ -122,6 +125,7 @@ dnf = ["dnf" for _ in range(len(mesta)-len(casi))]
 slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
 data.append([spremeni_v_sekunde(cas) for cas in casi])
 medalje_za_drzave(slovar_medalj, drzave, mesta)
+
 
 # spletna_downhill = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_downhill').text
 # vse_dw = re.findall(r'<td align="left">.*?<a href="/wiki/.+?" title=".+?">(.+?)</a>', spletna_downhill) # druga svica manjka
@@ -226,6 +230,9 @@ slovar_objektov(disciplina, imena, drzave, casi+dnf, mesta)
 data.append([spremeni_v_sekunde(cas) for cas in casi])
 medalje_za_drzave(slovar_medalj, drzave, mesta)
 
+
+
+
 # spletna_superg = requests.get('https://en.wikipedia.org/wiki/Alpine_skiing_at_the_2014_Winter_Olympics_–_Women%27s_super-G').text
 # vse_sg = re.findall(r'<td align="left">.*?<a href="/wiki/.+?".*>(.+?)</a>', spletna_superg) 
 # imena_sg = vse_sg[::2]
@@ -244,6 +251,18 @@ medalje_za_drzave(slovar_medalj, drzave, mesta)
 
 # #škatla z brki
 # data5 = [spremeni_v_sekunde(cas) for cas in vsi_casi_sg]
+
+#korelacijski koeficienti============================================================================================================================
+coef_comb_dw = round(np.corrcoef(data[0], data[1][:len(data[0])])[0, 1], 3)
+coef_comb_gs = round(np.corrcoef(data[0], data[2][:len(data[0])])[0, 1], 3)
+coef_comb_sl = round(np.corrcoef(data[0], data[3][:len(data[0])])[0, 1], 3)
+coef_comb_sg = round(np.corrcoef(data[0], data[4][:len(data[0])])[0, 1], 3)
+coef_dw_gs = round(np.corrcoef(data[1], data[2][:len(data[1])])[0, 1], 3)
+coef_dw_sl = round(np.corrcoef(data[1], data[3][:len(data[1])])[0, 1], 3)
+coef_dw_sg = round(np.corrcoef(data[4], data[1][:len(data[4])])[0, 1], 3)
+coef_gs_sl = round(np.corrcoef(data[3], data[2][:len(data[3])])[0, 1], 3)
+coef_gs_sg = round(np.corrcoef(data[4], data[2][:len(data[4])])[0, 1], 3)
+coef_sl_sg = round(np.corrcoef(data[4], data[3][:len(data[4])])[0, 1], 3)
 
 #pisanje v datoteko===============================================================================================================================================
 with open("prikaz_podatkov.txt", "w", encoding='utf8') as dat:
@@ -264,9 +283,25 @@ with open("prikaz_podatkov.txt", "w", encoding='utf8') as dat:
                 dat.write("did not participate".ljust(25))
         
         dat.write("\n")
+    dat.write("\n")
+    dat.write("\n")
+    dat.write("\n")
+    dat.write("DISCIPLINA 1".ljust(17) + "DISCIPLINA 2".ljust(20) + "KORELACIJSKI KOEFICIENT".ljust(25) + "STOPNJA POVEZANOSTI\n")
+    dat.write("Combined".ljust(17) + "Downhill".ljust(20) + str(coef_comb_dw).ljust(25) + "Visoka\n")
+    dat.write("Combined".ljust(17) + "Giant-Slalom".ljust(20) + str(coef_comb_gs).ljust(25) + "Visoka\n")
+    dat.write("Combined".ljust(17) + "Slalom".ljust(20) + str(coef_comb_sl).ljust(25) + "Visoka\n")
+    dat.write("Combined".ljust(17) + "Super-G".ljust(20) + str(coef_comb_sg).ljust(25) + "Visoka\n")
+    dat.write("Downhill".ljust(17) + "Giant Slalom".ljust(20) + str(coef_dw_gs).ljust(25) + "Zelo visoka\n")
+    dat.write("Downhill".ljust(17) + "Slalom".ljust(20) + str(coef_dw_sl).ljust(25) + "Zelo visoka\n")
+    dat.write("Downhill".ljust(17) + "Super-G".ljust(20) + str(coef_dw_sg).ljust(25) + "Zelo visoka\n")
+    dat.write("Giant Slalom".ljust(17) + "Slalom".ljust(20) + str(coef_gs_sl).ljust(25) + "Zelo visoka\n")
+    dat.write("Giant Slalom".ljust(17) + "Super-G".ljust(20) + str(coef_gs_sg).ljust(25) + "Zelo visoka\n")
+    dat.write("Slalom".ljust(17) + "Super-G".ljust(20) + str(coef_sl_sg).ljust(25) + "Zelo visoka\n")
+
 
 #===========================================================================================================================================
 #data = [data1, data2, data3, data4, data5]
+plt.rcParams['toolbar'] = 'None'
 
 M = max(data[0] + data[1] + data[2] + data[3] + data[4])
 m = min(data[0] + data[1] + data[2] + data[3] + data[4])
@@ -281,6 +316,8 @@ plt.semilogy()
 plt.minorticks_off()
 plt.xticks([1, 2, 3, 4, 5], ['Combined', 'Downhill', "Giant Slalom", "Slalom", "Super-G"])
 plt.yticks(ves_data, casi)
+plt.ylabel('Časi [min:s]')
+plt.title('Škatla z brki za posamezno smučarsko disciplino').set_fontweight('bold')
 #fig.savefig("Box plot")
 #plt.show()
 
@@ -296,12 +333,16 @@ for tabela in slovar_medalj.values():
     srebrna.append(tabela[1])
     bronasta.append(tabela[2])
 
+
 fig2, ax = plt.subplots(num="Bar chart", figsize=(10,7))
 
+ax.set_title('Skupno število doseženih medalj na Olimpijskih igrah 2014').set_fontweight('bold')
 ax.barh(drzava, zlata, label='Zlata', color="gold")
 ax.barh(drzava, srebrna, left=zlata, label='Srebrna', color="grey")
 ax.barh(drzava, bronasta, left=[i+j for i,j in zip(zlata,srebrna)], label='Bronasta', color="brown")
+ax.set_xlabel("Skupno število medalj")
 ax.legend()
+
 #fig2.savefig("Bar chart")
 
 #plt.show()
@@ -320,8 +361,10 @@ delez_austria = format((sum(slovar_medalj["Austria"])/int(Austria))*100, ".2e")
 delez_usa = format((sum(slovar_medalj["United States"])/int(Usa))*100, ".2e")
 delez_switzerland = format((sum(slovar_medalj["Switzerland"])/int(Switzerland))*100, ".2e")
 delez_slovenia = format((sum(slovar_medalj["Slovenia"])/int(Slovenia))*100, ".2e")
+delezi = [delez_germany, delez_austria, delez_usa, delez_switzerland, delez_slovenia]
 
-
-
-#dosežene medalje pravilno
-#{Germany: [1, 1, 1], Austria: [1, 3, 2], United States: [1, 0, 1], Slovenia: [2, 0, 0], Switzerland: [1, 1, 0]}
+fig3, ax = plt.subplots(num="Bar chart medalje/populacije", figsize=(10,7))
+ax.set_title('Delež doseženih medalj v primerjavi z velikostjo populacije').set_fontweight('bold')
+ax.bar(drzava, delezi, color="green")
+ax.set_ylabel("Delež [%]")
+plt.show()
