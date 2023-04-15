@@ -282,7 +282,9 @@ while True:
     print("6. Zaustavitev programa")
     odgovor = input("Prosim vpišite število vaše izbire: ")
     if odgovor == "1":
-        ime = input("Vpišite ime tekmovalke v obliki 'Tina Maze': ")
+        print("\n")
+        print("Imena vseh tekmovalk:\n\n", [i for i in vse_tekmovalke.keys()], "\n")
+        ime = input("Vpišite ime tekmovalke, kakor so napisana zgoraj: ")
         if ime not in vse_tekmovalke:
             print("\n")
             print("Prosim vpišite ime v veljavni obliki, pazite na velike začetnice!")
@@ -292,7 +294,9 @@ while True:
             print(vse_tekmovalke[ime])
             print("\n")
     elif odgovor == "2":
+        print("\n")
         print("Poglejte si datoteko z imenom 'prikaz_podatkov.txt'.")
+        print("\n")
     elif odgovor == "3":
         box_plot()
     elif odgovor == "4":
@@ -302,6 +306,8 @@ while True:
     elif odgovor == "6":
         break
     else:
-        print("Vpišite '1', '2', '3', '4', '5' ali '6'!")
+        print("\n")
+        print("Vpišite število '1', '2', '3', '4', '5' ali '6'!")
+        print("\n")
     input("Pritisnite enter za nadaljevanje!")
     
