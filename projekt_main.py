@@ -225,7 +225,6 @@ def box_plot():
     plt.yticks(ves_data, casi)
     plt.ylabel('Časi [min:s]')
     plt.title('Škatla z brki za posamezno smučarsko disciplino').set_fontweight('bold')
-    #fig.savefig("Box plot")
     plt.show()
 
 
@@ -245,7 +244,6 @@ def bar_chart_medalje():
     ax.barh(drzava, bronasta, left=[i+j for i,j in zip(zlata,srebrna)], label='Bronasta', color="brown")
     ax.set_xlabel("Skupno število medalj")
     ax.legend()
-    #fig2.savefig("Bar chart")
     plt.show()
 
 #Primerjava stevila medalj glede na velikost populacije
