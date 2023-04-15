@@ -4,8 +4,7 @@ Ta repozitorij vsebuje analizo ženskega alpskega smučanja na olimpijskih igrah
 Pisan bo v programu *Python*.
 
 ### Načrt:
-1. Koliko držav je sodelovalo v Alpskem smučanju leta 2014 v primerjavi s prejšnjimi leti?
-2. Analiza posamezne discipline (uspešnost ekipe)
-3. Primerjava časov med disciplinami (škatle z brki)
-4. Pregled medalj po ekipah (delez glede na velikost populacije)
-5. Analiza povezanosti med posameznimi disciplinami
+1. Analiza posamezne discipline (uspešnost ekipe)
+2. Primerjava časov med disciplinami (škatle z brki)
+3. Pregled medalj po ekipah (delež glede na velikost populacije)
+4. Analiza povezanosti med posameznimi disciplinami
