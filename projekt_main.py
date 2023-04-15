@@ -261,15 +261,14 @@ def bar_chart_delezi():
     delez_usa = format((sum(slovar_medalj["United States"])/int(Usa))*100, ".2e")
     delez_switzerland = format((sum(slovar_medalj["Switzerland"])/int(Switzerland))*100, ".2e")
     delez_slovenia = format((sum(slovar_medalj["Slovenia"])/int(Slovenia))*100, ".2e")
-    delezi = [delez_germany, delez_austria, delez_usa, delez_switzerland, delez_slovenia]
+    delezi = [delez_germany, delez_austria, delez_usa, delez_slovenia, delez_switzerland]
 
     fig3, ax = plt.subplots(num="Bar chart medalje/populacije", figsize=(10,7))
     ax.set_title('Delež doseženih medalj v primerjavi z velikostjo populacije').set_fontweight('bold')
     ax.bar(drzava, delezi, color="green")
     ax.set_ylabel("Delež [%]")
     plt.show()
-
-
+    
 #input=================================================================================================================================================================
 while True:
     print("==================================================================")
@@ -277,11 +276,11 @@ while True:
     print("Kaj vas zanima?")
     print("1. Rezultati posamezne tekmovalke")
     print("2. Prikaz rezultatov in povezanost")
-    print("3. Graf škatl z brki")
+    print("3. Graf škatel z brki")
     print("4. Stolpični diagram doseženih medalj posamezne države")
     print("5. Stolpični diagram deležov doseženih medalj posamezne populacije")
     print("6. Zaustavitev programa")
-    odgovor = input("Prosim vpišite zgolj število pred željenim: ")
+    odgovor = input("Prosim vpišite število vaše izbire: ")
     if odgovor == "1":
         ime = input("Vpišite ime tekmovalke v obliki 'Tina Maze': ")
         if ime not in vse_tekmovalke:
