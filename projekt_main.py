@@ -24,6 +24,7 @@ class Tekmovalka:
         return self._rezultati
     
     def dodaj_disciplino(self, disciplina, mesto, cas):
+        """objektu tekmovalke doda rezultate v dani disciplini"""
         self._rezultati[disciplina] = {'mesto':mesto, 'cas':cas}
         if mesto == 1:
             self._medalje['zlato'] += 1
@@ -41,11 +42,13 @@ class Tekmovalka:
 
 
 def spremeni_v_sekunde(cas):
+    """spremeni cas v obliki 2:50:23 vse v sekunde"""
     minute, sekunde = cas.split(':')
     total = float(minute)*60 + float(sekunde)
     return total
 
 def spremeni_v_minute(cas):
+    """spremeni cas iz sekund nazaj v minute"""
     minute = cas // 60
     sekunde = cas - minute*60
     return '{:.0f}:{:.2f}'.format(minute, sekunde)
@@ -64,8 +67,8 @@ def medalje_za_drzave(slovar, drzave, mesta):
 vse_tekmovalke = dict()
 
 def slovar_objektov(disciplina, imena, drzave, casi, mesta):
+    """{ime: Tekmovalka(ime, drzava, {zlato, srebro, bron}, {disciplina: {mesto, cas}})}"""
     for i in range(len(casi)):
-        #print(i)
         ime = imena[i]
         drzava = drzave[i]
         mesto = mesta[i]
@@ -268,7 +271,7 @@ def bar_chart_delezi():
     ax.bar(["Germany", "Austria", "United States", "Switzerland", "Slovenia"], delezi, color="green")
     ax.set_ylabel("Delež [%]")
     plt.show()
-
+print(vse_tekmovalke)
 #input=================================================================================================================================================================
 while True:
     print("==================================================================")
