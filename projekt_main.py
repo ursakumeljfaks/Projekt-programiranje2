@@ -271,7 +271,7 @@ def bar_chart_delezi():
     ax.bar(["Germany", "Austria", "United States", "Switzerland", "Slovenia"], delezi, color="green")
     ax.set_ylabel("Delež [%]")
     plt.show()
-print(vse_tekmovalke)
+
 #input=================================================================================================================================================================
 while True:
     print("==================================================================")
